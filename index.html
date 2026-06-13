@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Wenden Groove Wrapped</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green: #1DB954;
+      --black: #000000;
+      --dark: #121212;
+      --dark2: #1e1e1e;
+      --dark3: #282828;
+      --white: #ffffff;
+      --gray: #b3b3b3;
+      --font: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    html, body {
+      background: var(--black);
+      color: var(--white);
+      font-family: var(--font);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ─── SLIDE SYSTEM ─── */
+    .slide {
+      display: none;
+      min-height: 100svh;
+      padding: 0;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .slide.active { display: flex; }
+
+    .tap-prev, .tap-next {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 50%;
+      z-index: 10;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tap-prev { left: 0; }
+    .tap-next { right: 0; }
+    .tap-hint {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      z-index: 20;
+      pointer-events: none;
+    }
+
+    /* Progress bar */
+    .progress-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      gap: 4px;
+      padding: 12px 16px 0;
+      z-index: 30;
+    }
+    .progress-bar span {
+      flex: 1;
+      height: 3px;
+      background: rgba(255,255,255,0.25);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .progress-bar span.done { background: var(--white); }
+    .progress-bar span.active { background: rgba(255,255,255,0.25); }
+    .progress-bar span.active::after {
+      content: '';
+      display: block;
+      height: 100%;
+      background: var(--white);
+      animation: progressFill 5s linear forwards;
+    }
+    @keyframes progressFill { from { width: 0% } to { width: 100% } }
+
+    /* ─── SLIDE 1 — COVER ─── */
+    #slide-cover {
+      background: #2D6A4F;
+      text-align: center;
+      gap: 0;
+    }
+    #slide-cover .big-bg {
+      font-size: clamp(80px, 28vw, 160px);
+      font-weight: 900;
+      line-height: 0.85;
+      color: rgba(0,0,0,0.18);
+      position: absolute;
+      bottom: -0.1em;
+      left: -0.05em;
+      pointer-events: none;
+      user-select: none;
+      letter-spacing: -0.04em;
+    }
+    #slide-cover .cover-inner {
+      position: relative;
+      z-index: 5;
+      padding: 2rem;
+    }
+    #slide-cover .cover-label {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 1rem;
+    }
+    #slide-cover h1 {
+      font-size: clamp(42px, 13vw, 72px);
+      font-weight: 900;
+      line-height: 0.9;
+      color: var(--white);
+      letter-spacing: -0.03em;
+    }
+    #slide-cover .cover-sub {
+      margin-top: 1.5rem;
+      font-size: 17px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.4;
+    }
+    #slide-cover .cover-addr {
+      margin-top: 2rem;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+    }
+
+    /* ─── SLIDE — BIG STAT (person) ─── */
+    .slide-bigstat {
+      padding: 3rem 2rem 5rem;
+      text-align: left;
+      gap: 0;
+      align-items: flex-start;
+    }
+    .slide-bigstat .eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 2rem;
+    }
+    .slide-bigstat .person-name {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+    .slide-bigstat .number {
+      font-size: clamp(76px, 24vw, 130px);
+      font-weight: 900;
+      line-height: 0.85;
+      letter-spacing: -0.04em;
+      margin-bottom: 1rem;
+    }
+    .slide-bigstat .stat-label {
+      font-size: clamp(19px, 5.5vw, 28px);
+      font-weight: 700;
+      line-height: 1.15;
+      max-width: 310px;
+    }
+    .slide-bigstat .footnote {
+      margin-top: 1.5rem;
+      font-size: 13px;
+      color: rgba(255,255,255,0.45);
+      font-style: italic;
+      max-width: 280px;
+      line-height: 1.4;
+    }
+
+    /* Color themes */
+    .theme-forest  { background: #2D6A4F; }
+    .theme-earth   { background: #6B4226; }
+    .theme-clay    { background: #C0603A; color: var(--black); }
+    .theme-clay    .eyebrow, .theme-clay .footnote, .theme-clay .person-name { color: rgba(0,0,0,0.45); }
+    .theme-sage    { background: #52796F; }
+    .theme-ochre   { background: #C9A84C; color: var(--black); }
+    .theme-ochre   .eyebrow, .theme-ochre .footnote, .theme-ochre .person-name { color: rgba(0,0,0,0.45); }
+    .theme-moss    { background: #3D5A3E; }
+    .theme-dust    { background: #8B7355; }
+    .theme-rust    { background: #A0522D; }
+    .theme-stone   { background: #5C6B73; }
+    .theme-dusk    { background: #1e1e2e; }
+    .theme-dark    { background: var(--dark2); }
+
+    /* ─── SLIDE — MULTI STATS ─── */
+    .slide-multistats {
+      padding: 3rem 2rem 5rem;
+      align-items: flex-start;
+      gap: 0;
+    }
+    .slide-multistats .eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 1.5rem;
+    }
+    .slide-multistats h2 {
+      font-size: clamp(24px, 7vw, 32px);
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 2rem;
+    }
+    .stats-grid {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .stat-card {
+      background: rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 1rem;
+    }
+    .stat-card .sc-num {
+      font-size: clamp(28px, 9vw, 42px);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .stat-card .sc-label {
+      font-size: 12px;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.3;
+    }
+    .stat-card.accent { background: #2D6A4F; }
+    .stat-card.accent .sc-num { color: var(--white); }
+    .stat-card.accent .sc-label { color: rgba(255,255,255,0.6); }
+    .stat-card.wide {
+      grid-column: span 2;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .stat-card.wide .sc-num {
+      font-size: clamp(36px, 11vw, 56px);
+      flex-shrink: 0;
+    }
+    .stat-card.wide .sc-label { font-size: 14px; }
+
+    /* ─── SLIDE — CLOSING ─── */
+    #slide-final {
+      background: #2D6A4F;
+      text-align: center;
+      gap: 0;
+    }
+    #slide-final .final-inner {
+      position: relative;
+      z-index: 5;
+      padding: 2rem;
+    }
+    #slide-final .final-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 1.5rem;
+    }
+    #slide-final h2 {
+      font-size: clamp(36px, 12vw, 64px);
+      font-weight: 900;
+      color: var(--white);
+      line-height: 0.9;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.5rem;
+    }
+    #slide-final p {
+      font-size: 17px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.65);
+      max-width: 290px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+    #slide-final .big-bg-final {
+      font-size: clamp(120px, 38vw, 220px);
+      font-weight: 900;
+      color: rgba(0,0,0,0.15);
+      position: absolute;
+      bottom: -0.15em;
+      right: -0.05em;
+      line-height: 1;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* ─── SLIDE — PEOPLE LIST ─── */
+    #slide-crew {
+      background: var(--dark);
+      padding: 3rem 2rem 5rem;
+      align-items: flex-start;
+      gap: 0;
+    }
+    #slide-crew .eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 1.5rem;
+    }
+    #slide-crew h2 {
+      font-size: clamp(26px, 8vw, 36px);
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 2rem;
+    }
+    .crew-list {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .crew-item {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      padding: 13px 0;
+      border-bottom: 0.5px solid rgba(255,255,255,0.08);
+    }
+    .crew-item:last-child { border-bottom: none; }
+    .crew-num {
+      font-size: 11px;
+      font-weight: 700;
+      color: #2D6A4F;
+      min-width: 20px;
+    }
+    .crew-name {
+      font-size: clamp(17px, 4.5vw, 22px);
+      font-weight: 700;
+      flex: 1;
+    }
+    .crew-note {
+      font-size: 11px;
+      color: rgba(255,255,255,0.38);
+      text-align: right;
+      max-width: 90px;
+      line-height: 1.3;
+    }
+
+    /* Animations */
+    .slide.active .number,
+    .slide.active h1,
+    .slide.active h2,
+    .slide.active .stat-label,
+    .slide.active .crew-item {
+      animation: fadeUp 0.4s ease both;
+    }
+    .slide.active .footnote  { animation: fadeUp 0.4s 0.15s ease both; }
+    .slide.active .stat-card { animation: fadeUp 0.4s ease both; }
+    .slide.active .stat-card:nth-child(2) { animation-delay: 0.06s; }
+    .slide.active .stat-card:nth-child(3) { animation-delay: 0.12s; }
+    .slide.active .crew-item:nth-child(2)  { animation-delay: 0.06s; }
+    .slide.active .crew-item:nth-child(3)  { animation-delay: 0.10s; }
+    .slide.active .crew-item:nth-child(4)  { animation-delay: 0.14s; }
+    .slide.active .crew-item:nth-child(5)  { animation-delay: 0.18s; }
+    .slide.active .crew-item:nth-child(6)  { animation-delay: 0.22s; }
+    .slide.active .crew-item:nth-child(7)  { animation-delay: 0.26s; }
+    .slide.active .crew-item:nth-child(8)  { animation-delay: 0.30s; }
+    .slide.active .crew-item:nth-child(9)  { animation-delay: 0.34s; }
+    .slide.active .crew-item:nth-child(10) { animation-delay: 0.38s; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+
+<!-- ════════════════════════
+     SLIDE 1 — COVER
+     ════════════════════════ -->
+<section class="slide active" id="slide-cover">
+  <div class="progress-bar"></div>
+  <div class="big-bg">4WG</div>
+  <div class="cover-inner">
+    <p class="cover-label">Wrapped</p>
+    <h1>Wenden<br>Groove</h1>
+    <p class="cover-sub">One month.<br>Ten people.<br>One dog.<br>One house.</p>
+    <p class="cover-addr">4 Wenden Gr</p>
+  </div>
+  <p class="tap-hint">Tap to continue</p>
+  <div class="tap-prev" onclick="prevSlide()"></div>
+  <div class="tap-next" onclick="nextSlide()"></div>
+</section>
+
+
+<!-- ════════════════════════
+     SLIDE 2 — THE CREW
+     ════════════════════════ -->
+<section class="slide" id="slide-crew">
+  <div class="progress-bar"></div>
+  <p class="eyebrow">The housemates</p>
+  <h2>The people<br>who made it</h2>
+  <div class="crew-list">
+    <div class="crew-item">
+      <span class="crew-num">01</span>
+      <span class="crew-name">Eva</span>
+      <span class="crew-note">the boss</span>
+    </div>
+    <div class="crew-item">
+      <span class="crew-num">02</span>
+      <span class="crew-name">Yitz</span>
+      <span class="crew-note">the visionary</span>
+    </div>
+    <div class="crew-item">
+      <span class="crew-num">03</span>
+      <span class="crew-name">Lazer</span>
+      <span class="crew-note">the philosopher</span>
+    </div>
+    <div class="crew-item">
+      <span class="crew-num">04</span>
+      <span class="crew-name">Fede & Anna</span>
+      <span class="crew-note">the latino couple</span>
+    </div>
+    <div class="crew-item">
+      <span class="crew-num">05</span>
+      <span class="crew-name">Tamlyn</span>
+      <span class="crew-note">the permaculture chef</span>
+    </div>
+    <div class="crew-item">
+      <span class="crew-num">06</span>
+      <span class="crew-name">Carla</span>
+      <span class="crew-note">the perfeccionist</span>
+    </div>
+    <div class="crew-item">
+      <span class="crew-num">07</span>
+      <span class="crew-name">Sam</span>
+      <span class="crew-note">the singer</span>
+    </div>
+    <div class="crew-item">
+      <span class="crew-num">08</span>
+      <span class="crew-name">Laura</span>
+      <span class="crew-note">the asian (we love u)</span>
+    </div>
+    <div class="crew-item">
+      <span class="crew-num">09</span>
+      <span class="crew-name">Lily</span>
+      <span class="crew-note">the artist</span>
+    </div>
+    <div class="crew-item">
+      <span class="crew-num">10</span>
+      <span class="crew-name">Lucy</span>
+      <span class="crew-note">the doer</span>
+    </div>
+  </div>
+  <div class="tap-prev" onclick="prevSlide()"></div>
+  <div class="tap-next" onclick="nextSlide()"></div>
+</section>
+
+
+<!-- ════════════════════════
+     SLIDE 3 — EVA
+     ════════════════════════ -->
+<section class="slide slide-bigstat theme-clay" id="slide-eva">
+  <div class="progress-bar"></div>
+  <p class="eyebrow">Eva's stat</p>
+  <p class="person-name" style="color:rgba(0,0,0,0.55)">Eva</p>
+  <p class="number">47</p>
+  <p class="stat-label">things she got rid of — and brought back</p>
+  <p class="footnote">The eternal loop of letting go and holding on.</p>
+  <div class="tap-prev" onclick="prevSlide()"></div>
+  <div class="tap-next" onclick="nextSlide()"></div>
+</section>
+
+
+<!-- ════════════════════════
+     SLIDE 4 — YITZ
+     ════════════════════════ -->
+<section class="slide slide-bigstat theme-forest" id="slide-yitz">
+  <div class="progress-bar"></div>
+  <p class="eyebrow">Yitz's stat</p>
+  <p class="person-name" style="color:rgba(255,255,255,0.5)">Yitz</p>
+  <p class="number">∞</p>
+  <p class="stat-label">projects currently in his mind</p>
+  <p class="footnote">Just pick one, Yitz. Just one.</p>
+  <div class="tap-prev" onclick="prevSlide()"></div>
+  <div class="tap-next" onclick="nextSlide()"></div>
+</section>
+
+
+<!-- ════════════════════════
+     SLIDE 5 — LAZER
+     ════════════════════════ -->
+<section class="slide slide-bigstat theme-dusk" id="slide-lazer">
+  <div class="progress-bar"></div>
+  <p class="eyebrow">Lazer's stat</p>
+  <p class="person-name" style="color:rgba(255,255,255,0.4)">Lazer</p>
+  <p class="number">10</p>
+  <p class="stat-label">nights Joey kept him awake</p>
+  <p class="footnote">She was cute. She was small. She had zero respect for his sleep schedule.</p>
+  <div class="tap-prev" onclick="prevSlide()"></div>
+  <div class="tap-next" onclick="nextSlide()"></div>
+</section>
+
+
+<!-- ════════════════════════
+     SLIDE 6 — FEDE & ANNA
+     ════════════════════════ -->
+<section class="slide slide-bigstat theme-earth" id="slide-fedeanna">
+  <div class="progress-bar"></div>
+  <p class="eyebrow">Fede & Anna's stat</p>
+  <p class="person-name" style="color:rgba(255,255,255,0.45)">Fede & Anna</p>
+  <p class="number">2</p>
+  <p class="stat-label">sheds built</p>
+  <p class="footnote">One opens. One doesn't. Both count.</p>
+  <div class="tap-prev" onclick="prevSlide()"></div>
+  <div class="tap-next" onclick="nextSlide()"></div>
+</section>
+
+
+<!-- ════════════════════════
+     SLIDE 7 — TAMLYN
+     ════════════════════════ -->
+<section class="slide slide-bigstat theme-ochre" id="slide-tamlyn">
+  <div class="progress-bar"></div>
+  <p class="eyebrow">Tamlyn's stat</p>
+  <p class="person-name" style="color:rgba(0,0,0,0.45)">Tamlyn</p>
+  <p class="number">1000</p>
+  <p class="stat-label">amazing dinners cooked for the house</p>
+  <p class="footnote">Grew plants in the morning. Trained to rescue people in the afternoon. Cooked dinner anyway.</p>
+  <div class="tap-prev" onclick="prevSlide()"></div>
+  <div class="tap-next" onclick="nextSlide()"></div>
+</section>
+
+
+<!-- ════════════════════════
+     SLIDE 8 — CARLA
+     ════════════════════════ -->
+<section class="slide slide-bigstat theme-sage" id="slide-carla">
+  <div class="progress-bar"></div>
+  <p class="eyebrow">Carla's stat</p>
+  <p class="person-name" style="color:rgba(255,255,255,0.45)">Carla</p>
+  <p class="number">23</p>
+  <p class="stat-label">times she asked "whose washing machine is this?"</p>
+  <p class="footnote">It's nobody's, Carla. It was always nobody's.</p>
+  <div class="tap-prev" onclick="prevSlide()"></div>
+  <div class="tap-next" onclick="nextSlide()"></div>
+</section>
+
+
+<!-- ════════════════════════
+     SLIDE 9 — SAM
+     ════════════════════════ -->
+<section class="slide slide-bigstat theme-moss" id="slide-sam">
+  <div class="progress-bar"></div>
+  <p class="eyebrow">Sam's stat</p>
+  <p class="person-name" style="color:rgba(255,255,255,0.45)">Sam</p>
+  <p class="number">3</p>
+  <p class="stat-label">guitars in the house. She only played hers.</p>
+  <p class="footnote">The other two weren't bad. They just weren't good enough for Sam.</p>
+  <div class="tap-prev" onclick="prevSlide()"></div>
+  <div class="tap-next" onclick="nextSlide()"></div>
+</section>
+
+
+<!-- ════════════════════════
+     SLIDE 10 — LAURA
+     ════════════════════════ -->
+<section class="slide slide-bigstat theme-rust" id="slide-laura">
+  <div class="progress-bar"></div>
+  <p class="eyebrow">Laura's stat</p>
+  <p class="person-name" style="color:rgba(255,255,255,0.45)">Laura</p>
+  <p class="number">19</p>
+  <p class="stat-label">dishes cooked via ChatGPT</p>
+  <p class="footnote">Laura was the vessel. AI was the chef.</p>
+  <div class="tap-prev" onclick="prevSlide()"></div>
+  <div class="tap-next" onclick="nextSlide()"></div>
+</section>
+
+
+<!-- ════════════════════════
+     SLIDE 11 — LILY
+     ════════════════════════ -->
+<section class="slide slide-bigstat theme-stone" id="slide-lily">
+  <div class="progress-bar"></div>
+  <p class="eyebrow">Lily's stat</p>
+  <p class="person-name" style="color:rgba(255,255,255,0.45)">Lily</p>
+  <p class="number">214</p>
+  <p class="stat-label">times she said<br>"I love you"</p>
+  <p class="footnote">One for every "last" piece of bread.</p>
+  <div class="tap-prev" onclick="prevSlide()"></div>
+  <div class="tap-next" onclick="nextSlide()"></div>
+</section>
+
+
+<!-- ════════════════════════
+     SLIDE 12 — LUCY
+     ════════════════════════ -->
+<section class="slide slide-bigstat theme-dust" id="slide-lucy">
+  <div class="progress-bar"></div>
+  <p class="eyebrow">Lucy's stat</p>
+  <p class="person-name" style="color:rgba(255,255,255,0.45)">Lucy</p>
+  <p class="number">62</p>
+  <p class="stat-label">times she stopped mid-walk saying "wait, what was I doing"</p>
+  <p class="footnote">Always moving, always solving.</p>
+  <div class="tap-prev" onclick="prevSlide()"></div>
+  <div class="tap-next" onclick="nextSlide()"></div>
+</section>
+
+
+<!-- ════════════════════════
+     SLIDE 13 — GROUP STATS 1
+     ════════════════════════ -->
+<section class="slide slide-multistats theme-dark" id="slide-group1">
+  <div class="progress-bar"></div>
+  <p class="eyebrow">The house in numbers</p>
+  <h2>What we<br>built together</h2>
+  <div class="stats-grid">
+
+    <div class="stat-card wide accent">
+      <span class="sc-num">2</span>
+      <span class="sc-label">sheds assembled from scratch<br>(1 door pending)</span>
+    </div>
+
+    <div class="stat-card">
+      <div class="sc-num">746</div>
+      <div class="sc-label">Nurturing conversations</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="sc-num">∞</div>
+      <div class="sc-label">memories made at 4 Wenden Gr</div>
+    </div>
+
+  </div>
+  <div class="tap-prev" onclick="prevSlide()"></div>
+  <div class="tap-next" onclick="nextSlide()"></div>
+</section>
+
+
+<!-- ════════════════════════
+     SLIDE 14 — GROUP STATS 2
+     ════════════════════════ -->
+<section class="slide slide-multistats theme-forest" id="slide-group2">
+  <div class="progress-bar"></div>
+  <p class="eyebrow">More numbers</p>
+  <h2>A month<br>well lived</h2>
+  <div class="stats-grid">
+
+    <div class="stat-card">
+      <div class="sc-num">10</div>
+      <div class="sc-label">people sharing one roof</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="sc-num">31</div>
+      <div class="sc-label">days of shared meals, chaos & good vibes</div>
+    </div>
+
+    <div class="stat-card wide">
+      <span class="sc-num">99</span>
+      <span class="sc-label">kg of bread eaten</span>
+    </div>
+
+  </div>
+  <div class="tap-prev" onclick="prevSlide()"></div>
+  <div class="tap-next" onclick="nextSlide()"></div>
+</section>
+
+
+<!-- ════════════════════════
+     SLIDE 15 — CLOSING
+     ════════════════════════ -->
+<section class="slide" id="slide-final">
+  <div class="progress-bar"></div>
+  <span class="big-bg-final">4WG</span>
+  <div class="final-inner">
+    <p class="final-label">See you on the other side</p>
+    <h2>Thanks<br>for<br>everything</h2>
+    <p>One month. Ten people. One house. One dog. Zero regrets.<br><br>Wenden Groove forever. 🌿</p>
+  </div>
+  <div class="tap-prev" onclick="prevSlide()"></div>
+  <div class="tap-next" onclick="nextSlide()"></div>
+</section>
+
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  let current = 0;
+
+  function updateProgress() {
+    document.querySelectorAll('.progress-bar').forEach(bar => {
+      const slideIndex = slides.indexOf(bar.closest('.slide'));
+      if (slideIndex === -1) return;
+      bar.innerHTML = slides.map((_, i) => {
+        if (i < slideIndex) return '<span class="done"></span>';
+        if (i === slideIndex) return '<span class="active"></span>';
+        return '<span></span>';
+      }).join('');
+    });
+  }
+
+  function nextSlide() {
+    if (current < slides.length - 1) {
+      slides[current].classList.remove('active');
+      current++;
+      slides[current].classList.add('active');
+      updateProgress();
+    }
+  }
+
+  function prevSlide() {
+    if (current > 0) {
+      slides[current].classList.remove('active');
+      current--;
+      slides[current].classList.add('active');
+      updateProgress();
+    }
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+    if (e.key === 'ArrowLeft') prevSlide();
+  });
+
+  updateProgress();
+</script>
+
+</body>
+</html>
